@@ -6,18 +6,18 @@ params.GTF_GZ_LINK = 'http://ftp.ensembl.org/pub/release-106/gtf/homo_sapiens/Ho
 params.TRANSCRIPTOME_REFERENCE = "human"
 params.KALLISTO_BIN = '/home/lf114/miniconda3/envs/perturbseq_pipeline/bin/kallisto'
 params.GENOME = 'https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz'
-params.GUIDE_FEATURES = '/n/data1/bch/hemonc/bauer/lucassilva/guillame_perturbseq/5p27sgRNA_guide_metainfo_modified.xlsx'
+params.GUIDE_FEATURES = '5p27sgRNA_guide_metainfo_modified.xlsx'
 params.CHEMISTRY = '0,0,16:0,16,26:0,26,0,1,0,0'
 params.THREADS = 15
 params.DISTANCE_NEIGHBORS = 1000000
 params.IN_TRANS = "FALSE"
 
-params.FASTQ_FILES_TRANSCRIPTS = ['/n/scratch3/users/l/lf114/guillaume_perturb_data/5p27sgRNAGex_02KRWD_11408_S3_L001_R1_001.fastq.gz /n/scratch3/users/l/lf114/guillaume_perturb_data/5p27sgRNAGex_02KRWD_11408_S3_L001_R2_001.fastq.gz']
+params.FASTQ_FILES_TRANSCRIPTS = ['5p27sgRNAGex_02KRWD_11408_S3_L001_R1_001.fastq.gz 5p27sgRNAGex_02KRWD_11408_S3_L001_R2_001.fastq.gz']
 
 params.FASTQ_NAMES_TRANSCRIPTS = ['S1_L1']
 
 
-params.FASTQ_FILES_GUIDES = ['/n/scratch3/users/l/lf114/guillaume_perturb_data/5p27sgRNAsgRNA_02KRWK_11408_S15_L001_R1_001.fastq.gz /n/scratch3/users/l/lf114/guillaume_perturb_data/5p27sgRNAsgRNA_02KRWK_11408_S15_L001_R2_001.fastq.gz' ]
+params.FASTQ_FILES_GUIDES = ['5p27sgRNAsgRNA_02KRWK_11408_S15_L001_R1_001.fastq.gz 5p27sgRNAsgRNA_02KRWK_11408_S15_L001_R2_001.fastq.gz' ]
 
 params.FASTQ_NAMES_GUIDES = ['S1_L1']
 
@@ -119,7 +119,7 @@ process guidePreprocessing {
     path "guide_features.txt" , emit: guide_features
     script:
     """    
-    python /n/data1/bch/hemonc/bauer/lucassilva/guillame_perturbseq/guide_table_processing.py  $guide_input_table
+    python guide_table_processing.py  $guide_input_table
     """
 }
 
@@ -217,7 +217,7 @@ process preprocessing {
     path 'initial_preprocessing_file_names.txt', emit: df_initial_files
     script:
     """    
-    python /n/data1/bch/hemonc/bauer/lucassilva/guillame_perturbseq/preprocessing.py  ${count_list} 
+    python preprocessing.py  ${count_list} 
 
     """   
     
@@ -236,7 +236,7 @@ process filtering{
     """
     #use -merge to merge the guides
     # I need to add these parameters to the pipeline config  mito...cellnumber...merge...guide_limit
-    python /n/data1/bch/hemonc/bauer/lucassilva/guillame_perturbseq/filtering_and_lane_merging.py --path ${path_df} --expected_cell_number 8000 --mito_specie hsapiens --mito_expected_percentage 0.2 --percentage_of_cells_to_include_transcript 0.2  --guide_umi_limit 5
+    python filtering_and_lane_merging.py --path ${path_df} --expected_cell_number 8000 --mito_specie hsapiens --mito_expected_percentage 0.2 --percentage_of_cells_to_include_transcript 0.2  --guide_umi_limit 5
 
     """
 }
@@ -261,7 +261,7 @@ process PerturbLoaderGeneration {
     path 'perturbdata.pkl', emit: perturb_piclke
     
    """ 
-   python /n/data1/bch/hemonc/bauer/lucassilva/guillame_perturbseq/PerturbLoader_generation.py --in_guide $in_guide --in_exp $in_exp --gtf_in $gtf_in  --distance_from_guide $distance_from_guide --in_trans $in_trans
+   python PerturbLoader_generation.py --in_guide $in_guide --in_exp $in_exp --gtf_in $gtf_in  --distance_from_guide $distance_from_guide --in_trans $in_trans
 
     """   
 }
@@ -274,7 +274,7 @@ process runSceptre {
 
     
    """ 
-   python /n/data1/bch/hemonc/bauer/lucassilva/guillame_perturbseq/runSceptre.py $perturbloader_pickle
+   python runSceptre.py $perturbloader_pickle
 
     """   
 }
