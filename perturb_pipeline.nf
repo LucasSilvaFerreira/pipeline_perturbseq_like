@@ -11,20 +11,12 @@ params.CHEMISTRY = '0,0,16:0,16,26:0,26,0,1,0,0'
 params.THREADS = 15
 params.DISTANCE_NEIGHBORS = 1000000
 params.IN_TRANS = "FALSE"
-
 params.FASTQ_FILES_TRANSCRIPTS = ['5p27sgRNAGex_02KRWD_11408_S3_L001_R1_001.fastq.gz 5p27sgRNAGex_02KRWD_11408_S3_L001_R2_001.fastq.gz']
-
 params.FASTQ_NAMES_TRANSCRIPTS = ['S1_L1']
-
-
 params.FASTQ_FILES_GUIDES = ['5p27sgRNAsgRNA_02KRWK_11408_S15_L001_R1_001.fastq.gz 5p27sgRNAsgRNA_02KRWK_11408_S15_L001_R2_001.fastq.gz' ]
-
 params.FASTQ_NAMES_GUIDES = ['S1_L1']
-
-
-
-
 params.CREATE_REF = false
+
 
 workflow {
    gtf_out = downloadGTF(params.GTF_GZ_LINK)
