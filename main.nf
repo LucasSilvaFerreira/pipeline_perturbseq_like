@@ -1,7 +1,6 @@
 
 // Declare syntax version
 nextflow.enable.dsl=2
-nextflow.enable.moduleBinaries = true
 // Script parameters
 params.GTF_GZ_LINK = 'http://ftp.ensembl.org/pub/release-106/gtf/homo_sapiens/Homo_sapiens.GRCh38.106.gtf.gz'
 params.TRANSCRIPTOME_REFERENCE = "human"
@@ -17,6 +16,8 @@ params.FASTQ_NAMES_TRANSCRIPTS = ['S1_L1']
 params.FASTQ_FILES_GUIDES = ['5p27sgRNAsgRNA_02KRWK_11408_S15_L001_R1_001.fastq.gz 5p27sgRNAsgRNA_02KRWK_11408_S15_L001_R2_001.fastq.gz' ]
 params.FASTQ_NAMES_GUIDES = ['S1_L1']
 params.CREATE_REF = false
+
+
 
 
 workflow {
@@ -112,7 +113,7 @@ process guidePreprocessing {
     path "guide_features.txt" , emit: guide_features
     script:
     """    
-    python guide_table_processing.py  $guide_input_table
+    guide_table_processing.py  $guide_input_table
     """
 }
 
@@ -210,7 +211,7 @@ process preprocessing {
     path 'initial_preprocessing_file_names.txt', emit: df_initial_files
     script:
     """    
-    python preprocessing.py  ${count_list} 
+    preprocessing.py  ${count_list} 
 
     """   
     
@@ -254,7 +255,7 @@ process PerturbLoaderGeneration {
     path 'perturbdata.pkl', emit: perturb_piclke
     
    """ 
-   python PerturbLoader_generation.py --in_guide $in_guide --in_exp $in_exp --gtf_in $gtf_in  --distance_from_guide $distance_from_guide --in_trans $in_trans
+   PerturbLoader_generation.py --in_guide $in_guide --in_exp $in_exp --gtf_in $gtf_in  --distance_from_guide $distance_from_guide --in_trans $in_trans
 
     """   
 }
@@ -267,7 +268,7 @@ process runSceptre {
 
     
    """ 
-   python runSceptre.py $perturbloader_pickle
+   runSceptre.py $perturbloader_pickle
 
     """   
 }
