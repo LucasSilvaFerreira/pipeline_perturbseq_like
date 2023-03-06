@@ -230,7 +230,7 @@ process filtering{
     """
     #use -merge to merge the guides
     # I need to add these parameters to the pipeline config  mito...cellnumber...merge...guide_limit
-    python filtering_and_lane_merging.py --path ${path_df} --expected_cell_number 8000 --mito_specie hsapiens --mito_expected_percentage 0.2 --percentage_of_cells_to_include_transcript 0.2  --guide_umi_limit 5
+    filtering_and_lane_merging.py --path ${path_df} --expected_cell_number 8000 --mito_specie hsapiens --mito_expected_percentage 0.2 --percentage_of_cells_to_include_transcript 0.2  --guide_umi_limit 5
 
     """
 }
