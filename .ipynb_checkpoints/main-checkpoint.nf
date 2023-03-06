@@ -1,6 +1,7 @@
 
 // Declare syntax version
 nextflow.enable.dsl=2
+nextflow.enable.moduleBinaries = true
 // Script parameters
 params.GTF_GZ_LINK = 'http://ftp.ensembl.org/pub/release-106/gtf/homo_sapiens/Homo_sapiens.GRCh38.106.gtf.gz'
 params.TRANSCRIPTOME_REFERENCE = "human"
