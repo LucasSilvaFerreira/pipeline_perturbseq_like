@@ -21,6 +21,9 @@ params.CREATE_REF = false
 
 
 workflow {
+   dir_images_composition_scrna =  compositionREADSscRNA(Channel.from(params.FASTQ_NAMES_TRANSCRIPTS), Channel.from(params.FASTQ_FILES_TRANSCRIPTS))
+   dir_images_composition_guides = compositionREADSGuides(Channel.from(params.FASTQ_NAMES_GUIDES), Channel.from(params.FASTQ_FILES_GUIDES))
+
    gtf_out = downloadGTF(params.GTF_GZ_LINK)
    downloadReference(Channel.of(params.TRANSCRIPTOME_REFERENCE), Channel.of(params.KALLISTO_BIN) )
    downloadGenome (Channel.of(params.GENOME))
@@ -142,6 +145,44 @@ process creatingGuideRef {
     
 }
 
+process compositionREADSscRNA {
+    debug true
+    input:
+    tuple val(out_name_dir)
+    tuple val(string_fastqz)
+    output:
+    path ("${out_name_dir}_composition"),  emit: composition_plot_dir
+
+    script:
+    
+        """
+        mkdir "${out_name_dir}_composition"
+        fq_composition.py $string_fastqz $out_name_dir                                                                
+        """
+} 
+
+
+process compositionREADSGuides {
+    debug true
+    input:
+    tuple val(out_name_dir)
+    tuple val(string_fastqz)
+    output:
+    path ("${out_name_dir}_composition"),  emit: composition_plot_dir
+
+    script:
+    
+        """
+        mkdir "${out_name_dir}_composition"
+        fq_composition.py $string_fastqz $out_name_dir                                                                
+        """
+} 
+
+
+
+
+
+
 process mappingscRNA {
     debug true
     input:
@@ -176,7 +217,7 @@ process mappingGuide {
     path ("${out_name_dir}_ks_guide_out"),  emit: ks_guide_out
     script:
         """
-        kb count -i $guide_index       -g  $t2tguide_index --verbose   --report  --workflow kite --h5ad --kallisto $k_bin -x 0,0,16:0,16,26:0,26,0,1,60,86 -o ${out_name_dir}_ks_guide_out -t $threads $string_fastqz --overwrite
+        kb count -i $guide_index       -g  $t2tguide_index --verbose   --report  --workflow kite --h5ad --kallisto $k_bin -x $chemistry  -o ${out_name_dir}_ks_guide_out -t $threads $string_fastqz --overwrite
         """
 } 
 

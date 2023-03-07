@@ -1,0 +1,36 @@
+#!/usr/bin/env python
+
+#Read composition discover
+import pandas as pd
+import matplotlib.pyplot as plt
+import os
+
+def get_reads_fasta(fasta):
+    check_guides = f"zcat '{fasta}' | head -n 10000 "
+    print (check_guides)
+    seqs =  os.system(check_guides) #!$check_guides 
+    #print (seqs)
+    return [ x for x in seqs if '@' not in x and '+' not in x and 'F'not in x]
+    
+def compositional_bias_calculation(fasta_df, name, dir_out) :  
+    plt.rcParams["figure.figsize"] = (25,2)
+    plt.gca().xaxis.set_major_locator(plt.MultipleLocator(1))
+
+    df_calculate_percentages = pd.DataFrame([  [ a for a in s[:]] for s in fasta_df ])
+    (pd.concat([ (df_calculate_percentages == nucleotide).sum()  for nucleotide in ['A', 'C', 'T', 'G']], axis=1).T - df_calculate_percentages.shape[0] ).std().plot()
+    plt.xlim(0,df_calculate_percentages.shape[1])
+    plt.xticks(rotation=90)
+    plt.title(f'{name}:: + Compositional Bias \n (sd between the 4 nucleotides) ')
+    plt.savefig(f'{dir_out}_composition/{name}_composition.png')
+    plt.clf()
+
+    
+def plot_compositional_bia(R1,R2, prefix_tag):    
+    compositional_bias_calculation(get_reads_fasta(R1), name=f'{prefix_tag}_R1' ,dir_out=prefix_tag)   
+    compositional_bias_calculation(get_reads_fasta(R2), name=f'{prefix_tag}_R2', dir_out = prefix_tag )   
+
+
+read1 = os.argv[1]
+read2 = os.argv[2]
+prefix_tag = os.argv[3]
+plot_compositional_bia(read1,read2,prefix_tag)
