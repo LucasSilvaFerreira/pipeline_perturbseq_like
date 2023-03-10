@@ -53,11 +53,13 @@ __params.CHEMISTRY:__
 
 __params.FASTQ_FILES_TRANSCRIPTS__  
  - single sample path =   ['scRNAseq_reads_R1.fastq.gz scRNAseq_reads_R2.fastq.gz'] # R1 and R2 separated by one space.  
- - Multiple samples path = ['scRNAseq_reads_R1.fastq.gz scRNAseq_reads_R2.fastq.gz' , 'scRNAseq_b__reads_R1.fastq.gz b_scRNAseq_reads_R2.fastq.gz'] # samples separated by comma.  
+ - Multiple samples path = ['scRNAseq_reads_R1.fastq.gz scRNAseq_reads_R2.fastq.gz' , 'scRNAseq_b__reads_R1.fastq.gz b_scRNAseq_reads_R2.fastq.gz']
+ 
+add the same structure of single but with samples (R1 and R2 reads)  separated by comma.  
   
 __params.FASTQ_NAMES_TRANSCRIPTS__
-- single sample name and lane =  ['S1_L1']__
-- Multiple samples names and lane =  ['S1_L1', 'S2_L2']_, Case they come from the samole but different lane use  ['S1_L1', 'S2_L1'], This will be important to the differential perturbation.
+- single sample name and lane =  ['S1_L1']
+- Multiple samples names and lane =  ['S1_L1', 'S2_L2'], Case they come from the samole but different lane use  ['S1_L1', 'S2_L1'], This will be important to the differential perturbation.
 
 
 
