@@ -12,7 +12,7 @@ params.TRANSCRIPTOME_REFERENCE = "human"
 params.KALLISTO_BIN = '/home/lf114/miniconda3/envs/perturbseq_pipeline/bin/kallisto'
 params.GENOME = 'https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz'
 params.GUIDE_FEATURES = 'sgRNA_guide_metainfo_modified.xlsx'
-params.CHEMISTRY = '0,0,16:0,16,26:1,0,0'
+params.CHEMISTRY = '10XV3'
 params.THREADS = 15
 params.DISTANCE_NEIGHBORS = 1000000
 params.IN_TRANS = "FALSE"
@@ -22,6 +22,23 @@ params.FASTQ_FILES_GUIDES = ['path/FOR/you/fasta/scGUIDE_reads_R1.fastq.gz path/
 params.FASTQ_NAMES_GUIDES = ['S1_L1']
 params.CREATE_REF = false
 ```
+
+__params.CHEMISTRY:__
+- 10XV3
+- 10VX2 
+- '0,0,16:0,16,26:1,0,0'  for 5' PE
+ ```To custom extract your barcode, UMI, guide follow the rule: The first part of your string (0,0,16) indicates that the Cell Barcode is in the first fast file (R1) and starts at position 1 (0 often in computing) and goes until position 16. The UMI is the (read1, position 16 until 26), The sequence is in the R2 file (1) and starts from the first position ultil the end...you can see the information here and learn about  different chemistry specification: <link>https://pachterlab.github.io/kallisto/manual</link>```
+
+__params.FASTQ_FILES_TRANSCRIPTS__  
+ - single sample path =   ['scRNAseq_reads_R1.fastq.gz scRNAseq_reads_R2.fastq.gz']
+ - Multiple samples path = ['scRNAseq_reads_R1.fastq.gz scRNAseq_reads_R2.fastq.gz' , 'scRNAseq_b__reads_R1.fastq.gz b_scRNAseq_reads_R2.fastq.gz']
+  
+__params.FASTQ_NAMES_TRANSCRIPTS__
+- single sample name and lane =  ['S1_L1']__
+- Multiple samples names and lane =  ['S1_L1', 'S2_L2']_, Case they come from the samole but different lane use  ['S1_L1', 'S2_L1'], This will be important to the differential perturbation.
+
+
+
 
 
 ### GUIDE_FEATURES format
