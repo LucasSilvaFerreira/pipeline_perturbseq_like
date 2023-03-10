@@ -26,8 +26,10 @@ params.CREATE_REF = false
 
 ### GUIDE_FEATURES format
 
+<image src="https://raw.githubusercontent.com/LucasSilvaFerreira/pipeline_perturbseq_like/master/image/feature_example.png">  
+Example Guide features file:<link>https://github.com/LucasSilvaFerreira/pipeline_perturbseq_like/blob/master/feature_example.xlsx</link>  
 
-
+ 
 ### Requirements  
 Creating the conda env
 
