@@ -3,8 +3,8 @@
 ## Running the Pipeline:  
 
 
-### config file 
-Create a perturb.config files with the following requirements    
+## config file 
+### Create a perturb.config files with the following requirements    
 ---
 ```
 params.GTF_GZ_LINK = 'http://ftp.ensembl.org/pub/release-106/gtf/homo_sapiens/Homo_sapiens.GRCh38.106.gtf.gz'
@@ -86,5 +86,7 @@ Rscript -e 'devtools::install_github("katsevich-lab/sceptre")'
 
 ## TODO PIPELINE
 
-
+- [ ] Create a docker image  
+- [ ] Create a conda yml  
+- [ ] Decide on the experimental demo dataset (Maybe subsampling the gasperini 2019)  
 
