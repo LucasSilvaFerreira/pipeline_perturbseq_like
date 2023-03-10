@@ -45,21 +45,46 @@ params.FASTQ_NAMES_GUIDES = ['S1_L1']
 params.CREATE_REF = false
 ```
 
-__params.CHEMISTRY:__
-- 10XV3
-- 10VX2 
-- '0,0,16:0,16,26:1,0,0'  for 5' PE
- ```To custom extract your barcode, UMI, guide follow the rule: The first part of your string (0,0,16) indicates that the Cell Barcode is in the first fast file (R1) and starts at position 1 (0 often in computing) and goes until position 16. The UMI is the (read1, position 16 until 26), The sequence is in the R2 file (1) and starts from the first position ultil the end...you can see the information here and learn about  different chemistry specification: <link>https://pachterlab.github.io/kallisto/manual</link>```
+params.GTF_GZ_LINK:  
+The link to download the gzipped GTF file containing the genome annotation for ex: Homo sapiens (GRCh38.106 release).  
+ex: 'http://ftp.ensembl.org/pub/release-106/gtf/homo_sapiens/Homo_sapiens.GRCh38.106.gtf.gz'  
+params.TRANSCRIPTOME_REFERENCE:  
+The name of the transcriptome reference used for the alignment (ex: "human").  
+This will be used to compute the mitochondrial genes aligments and use it as a covariate in the perturbation analysis.   
+params.KALLISTO_BIN:   
+The path to the kallisto binary used for the quantification of transcript abundance.(Find where kallisto is installed in your system)  
+params.GENOME:   
+The URL to download the gzipped reference genome file in FASTA format for hg38 (UCSC goldenPath).  
+ex: 'https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz'  
+params.GUIDE_FEATURES:  
+The filename of the Excel file containing the metadata information of the sgRNA guides used in the experiment. (see next section for more details)  
+params.CHEMISTRY:  
+The type of chemistry used for the single cell experiment (10XV3 in this case).  
+```10XV3
+  10VX2
+'0,0,16:0,16,26:1,0,0' for 5' PE To custom extract your barcode, UMI, guide follow the rule: The first part of your string (0,0,16) indicates that the Cell Barcode is in the first fast file (R1) and starts at position 1 (0 often in computing) and goes until position 16. The UMI is the (read1, position 16 until 26), The sequence is in the R2 file (1) and starts from the first position ultil the end...you can see the information here and learn about  different chemistry specification: <link>https://pachterlab.github.io/kallisto/manual</link>```
 
-__params.FASTQ_FILES_TRANSCRIPTS__  
- - single sample path =   ['scRNAseq_reads_R1.fastq.gz scRNAseq_reads_R2.fastq.gz'] # R1 and R2 separated by one space.  
- - Multiple samples path = ['scRNAseq_reads_R1.fastq.gz scRNAseq_reads_R2.fastq.gz' , 'scRNAseq_b__reads_R1.fastq.gz b_scRNAseq_reads_R2.fastq.gz']
- 
-add the same structure of single but with samples (R1 and R2 reads)  separated by comma.  
-  
-__params.FASTQ_NAMES_TRANSCRIPTS__
-- single sample name and lane =  ['S1_L1']
-- Multiple samples names and lane =  ['S1_L1', 'S2_L2'], Case they come from the samole but different lane use  ['S1_L1', 'S2_L1'], This will be important to the differential perturbation.
+params.THREADS:  
+The number of threads used for parallel execution of the pipeline.  
+params.DISTANCE_NEIGHBORS:   
+The maximum distance (in bp) used to define the neighborhood of a gene for in-cis analysis.    
+params.IN_TRANS:  
+Case "TRUE" it will test the differential perturbation between each guide and all the genes in the scRNAseq dataset.  
+Case "FALSE" it will test the differential perturbation between each guide and the genes in the neighborhood of the guide defined in the DISTANCE_NEIGHBORS parameter.  
+params.FASTQ_FILES_TRANSCRIPTS:   
+A list of input FASTQ files containing the scRNA-seq reads (R1 and R2) for the transcript-level analysis. 
+The format should be ['file1_path_R1.fastq.gz file1_path_R2.fastq.gz', 'file2_path_R1.fastq.gz file2_path_R2.fastq.gz', ...].
+params.FASTQ_NAMES_TRANSCRIPTS: 
+For each FASTQ file in FASTQ_FILES_TRANSCRIPTS, a sample name should be provided in FASTQ_NAMES_TRANSCRIPTS. following the structure
+['S1_L1', 'S2_L1'']. Case the same sample came from same sample, but in a different lane, the sample name should be the same,
+ but the lane should be different. ex: ['S1_L1', 'S2_L1'].
+params.FASTQ_FILES_GUIDES: 
+a list of input FASTQ files containing the scGUIDE-seq reads (R1 and R2) for the perturbation analysis.
+The format should be ['guideFile1_path_R1.fastq.gz guideFile1_path_R2.fastq.gz', 'guideFile2_path_R1.fastq.gz guideFile2_path_R2.fastq.gz', ...].
+params.FASTQ_NAMES_GUIDES: 
+For each FASTQ file in FASTQ_FILES_GUIDES, a sample name should be provided in FASTQ_NAMES_GUIDES. following the structure
+['S1_L1', 'S2_L1'']. Case the same sample came from same sample, but in a different lane, the sample name should be the same,
+ but the lane should be different. ex: ['S1_L1', 'S2_L1'].
 
 
 
