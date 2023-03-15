@@ -151,13 +151,13 @@ process compositionREADSscRNA {
     tuple val(out_name_dir)
     tuple val(string_fastqz)
     output:
-    path ("${out_name_dir}_composition"),  emit: composition_plot_dir
+    path ("transcript_${out_name_dir}_composition"),  emit: composition_plot_dir
 
     script:
     
         """
-        mkdir "${out_name_dir}_composition"
-        fq_composition.py $string_fastqz $out_name_dir                                                                
+        mkdir transcript_"${out_name_dir}_composition"
+        fq_composition.py $string_fastqz transcript_${out_name_dir}                                                                
         """
 } 
 
@@ -168,13 +168,13 @@ process compositionREADSGuides {
     tuple val(out_name_dir)
     tuple val(string_fastqz)
     output:
-    path ("${out_name_dir}_composition"),  emit: composition_plot_dir
+    path ("guide_${out_name_dir}_composition"),  emit: composition_plot_dir
 
     script:
     
         """
-        mkdir "${out_name_dir}_composition"
-        fq_composition.py $string_fastqz $out_name_dir                                                                
+        mkdir "guide_${out_name_dir}_composition"
+        fq_composition.py $string_fastqz guide_${out_name_dir}                                                                
         """
 } 
 

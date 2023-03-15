@@ -3,12 +3,14 @@
 #Read composition discover
 import pandas as pd
 import matplotlib.pyplot as plt
+import sys
 import os
+import subprocess
 
 def get_reads_fasta(fasta):
     check_guides = f"zcat '{fasta}' | head -n 10000 "
     print (check_guides)
-    seqs =  os.system(check_guides) #!$check_guides 
+    seqs = os.popen(check_guides).read().split('\n')
     #print (seqs)
     return [ x for x in seqs if '@' not in x and '+' not in x and 'F'not in x]
     
@@ -21,6 +23,7 @@ def compositional_bias_calculation(fasta_df, name, dir_out) :
     plt.xlim(0,df_calculate_percentages.shape[1])
     plt.xticks(rotation=90)
     plt.title(f'{name}:: + Compositional Bias \n (sd between the 4 nucleotides) ')
+    plt.tight_layout()
     plt.savefig(f'{dir_out}_composition/{name}_composition.png')
     plt.clf()
 
@@ -30,7 +33,7 @@ def plot_compositional_bia(R1,R2, prefix_tag):
     compositional_bias_calculation(get_reads_fasta(R2), name=f'{prefix_tag}_R2', dir_out = prefix_tag )   
 
 
-read1 = os.argv[1]
-read2 = os.argv[2]
-prefix_tag = os.argv[3]
-plot_compositional_bia(read1,read2,prefix_tag)
+read1 = sys.argv[1]
+read2 = sys.argv[2]
+prefix_tag = sys.argv[3]
+plot_compositional_bia(read1, read2,prefix_tag)
