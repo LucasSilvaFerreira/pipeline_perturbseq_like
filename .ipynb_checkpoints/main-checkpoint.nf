@@ -2,20 +2,20 @@
 // Declare syntax version
 nextflow.enable.dsl=2
 // Script parameters
-params.GTF_GZ_LINK = 'http://ftp.ensembl.org/pub/release-106/gtf/homo_sapiens/Homo_sapiens.GRCh38.106.gtf.gz'
-params.TRANSCRIPTOME_REFERENCE = "human"
-params.KALLISTO_BIN = '/home/lf114/miniconda3/envs/perturbseq_pipeline/bin/kallisto'
-params.GENOME = 'https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz'
-params.GUIDE_FEATURES = '5p27sgRNA_guide_metainfo_modified.xlsx'
-params.CHEMISTRY = '0,0,16:0,16,26:0,26,0,1,0,0'
-params.THREADS = 15
-params.DISTANCE_NEIGHBORS = 1000000
-params.IN_TRANS = "FALSE"
-params.FASTQ_FILES_TRANSCRIPTS = ['5p27sgRNAGex_02KRWD_11408_S3_L001_R1_001.fastq.gz 5p27sgRNAGex_02KRWD_11408_S3_L001_R2_001.fastq.gz']
-params.FASTQ_NAMES_TRANSCRIPTS = ['S1_L1']
-params.FASTQ_FILES_GUIDES = ['5p27sgRNAsgRNA_02KRWK_11408_S15_L001_R1_001.fastq.gz 5p27sgRNAsgRNA_02KRWK_11408_S15_L001_R2_001.fastq.gz' ]
-params.FASTQ_NAMES_GUIDES = ['S1_L1']
-params.CREATE_REF = false
+//params.GTF_GZ_LINK = 'http://ftp.ensembl.org/pub/release-106/gtf/homo_sapiens/Homo_sapiens.GRCh38.106.gtf.gz'
+//params.TRANSCRIPTOME_REFERENCE = "human"
+//params.KALLISTO_BIN = '/home/lf114/miniconda3/envs/perturbseq_pipeline/bin/kallisto'
+//params.GENOME = 'https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz'
+//params.GUIDE_FEATURES = '5p27sgRNA_guide_metainfo_modified.xlsx'
+//params.CHEMISTRY = '0,0,16:0,16,26:0,26,0,1,0,0'
+//params.THREADS = 15
+//params.DISTANCE_NEIGHBORS = 1000000
+//params.IN_TRANS = "FALSE"
+//params.FASTQ_FILES_TRANSCRIPTS = ['5p27sgRNAGex_02KRWD_11408_S3_L001_R1_001.fastq.gz 5p27sgRNAGex_02KRWD_11408_S3_L001_R2_001.fastq.gz']
+//params.FASTQ_NAMES_TRANSCRIPTS = ['S1_L1']
+//params.FASTQ_FILES_GUIDES = ['5p27sgRNAsgRNA_02KRWK_11408_S15_L001_R1_001.fastq.gz 5p27sgRNAsgRNA_02KRWK_11408_S15_L001_R2_001.fastq.gz' ]
+//params.FASTQ_NAMES_GUIDES = ['S1_L1']
+//params.CREATE_REF = false
 
 
 
@@ -151,13 +151,13 @@ process compositionREADSscRNA {
     tuple val(out_name_dir)
     tuple val(string_fastqz)
     output:
-    path ("${out_name_dir}_composition"),  emit: composition_plot_dir
+    path ("transcript_${out_name_dir}_composition"),  emit: composition_plot_dir
 
     script:
     
         """
-        mkdir "${out_name_dir}_composition"
-        fq_composition.py $string_fastqz $out_name_dir                                                                
+        mkdir transcript_"${out_name_dir}_composition"
+        fq_composition.py $string_fastqz transcript_${out_name_dir}                                                                
         """
 } 
 
@@ -168,13 +168,13 @@ process compositionREADSGuides {
     tuple val(out_name_dir)
     tuple val(string_fastqz)
     output:
-    path ("${out_name_dir}_composition"),  emit: composition_plot_dir
+    path ("guide_${out_name_dir}_composition"),  emit: composition_plot_dir
 
     script:
     
         """
-        mkdir "${out_name_dir}_composition"
-        fq_composition.py $string_fastqz $out_name_dir                                                                
+        mkdir "guide_${out_name_dir}_composition"
+        fq_composition.py $string_fastqz guide_${out_name_dir}                                                                
         """
 } 
 
