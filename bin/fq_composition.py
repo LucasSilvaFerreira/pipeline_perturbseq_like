@@ -7,8 +7,13 @@ import sys
 import os
 import subprocess
 
+
 def get_reads_fasta(fasta):
-    check_guides = f"zcat '{fasta}' | head -n 10000 "
+    if '.gz' in fasta:
+        zcat='z'
+    else:
+        zcat=''
+    check_guides = f"{zcat}cat '{fasta}' | head -n 10000 "
     print (check_guides)
     seqs = os.popen(check_guides).read().split('\n')
     #print (seqs)
@@ -35,5 +40,10 @@ def plot_compositional_bia(R1,R2, prefix_tag):
 
 read1 = sys.argv[1]
 read2 = sys.argv[2]
-prefix_tag = sys.argv[3]
-plot_compositional_bia(read1, read2,prefix_tag)
+print ('read1', read1)
+#read1 = ' '.join(read1.split(' ')[0])
+#read2 = ' '.join(read2.split(' ')[0])
+#print (read1.split())
+#print (read1)
+prefix_tag = sys.argv[-1]
+plot_compositional_bia(read1, read2, prefix_tag)

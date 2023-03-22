@@ -36,6 +36,7 @@ def analyze_batch(scRNA_ann_FILE,
     create_case_doesnt_exist(OUT_DIR_FIGURES)
     # Processing scRNA_seq
     adata = anndata.read(scRNA_ann_FILE)
+    print (adata)
     # Perform SVD
     tsvd = TruncatedSVD(n_components=2)
     tsvd.fit(adata.X)
@@ -62,7 +63,7 @@ def analyze_batch(scRNA_ann_FILE,
     plt.savefig(OUT_DIR_FIGURES+'/'+ 'saturation_batch' + '.png')
     plt.show()
     #@title Threshold cells according to knee plot { run: "auto", vertical-output: true }
-    cutoff = 200
+    cutoff = 100
     knee = np.sort((np.array(adata.X.sum(axis=1))).flatten())[::-1]
     cell_set = np.arange(len(knee))
     num_cells = cell_set[knee > cutoff][::-1][0]

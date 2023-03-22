@@ -39,7 +39,7 @@ workflow {
                  Channel.of(params.KALLISTO_BIN).collect(),
                  Channel.of(params.CHEMISTRY).collect(),
                  Channel.of(params.THREADS).collect(),
-
+		 Channel.of(params.WHITELIST).collect(),
                 )
     
    map_guide = mappingGuide (
@@ -49,7 +49,8 @@ workflow {
                  creatingGuideRef.out.t2tguide_index.collect(),
                  Channel.of(params.KALLISTO_BIN).collect(),
                  Channel.of(params.CHEMISTRY).collect(),
-                 Channel.of(params.THREADS).collect())
+                 Channel.of(params.THREADS).collect(),
+		 Channel.of(params.WHITELIST).collect())
     
     
     dir_count_files = map_guide.ks_guide_out.join(map_rna.ks_transcripts_out, remainder: true).flatten().toList().view()
@@ -193,13 +194,15 @@ process mappingscRNA {
     tuple path(k_bin)
     tuple val(chemistry)
     tuple val(threads)
+    tuple val(whitelist)
     output:
     path ("${out_name_dir}_ks_transcripts_out"),  emit: ks_transcripts_out
 
     script:
     
         """
-        kb count -i $transcriptome_idx -g  $t2t_transcriptome_index --verbose --workflow kite --h5ad --kallisto $k_bin -x $chemistry -o ${out_name_dir}_ks_transcripts_out -t $threads $string_fastqz  --overwrite                                                                   
+	echo "kb count -i $transcriptome_idx -g  $t2t_transcriptome_index --verbose --workflow kite -w $whitelist --h5ad --kallisto $k_bin -x $chemistry -o ${out_name_dir}_ks_transcripts_out -t $threads $string_fastqz  --overwrite"
+        kb count -i $transcriptome_idx -g  $t2t_transcriptome_index --verbose --workflow kite -w $whitelist --h5ad --kallisto $k_bin -x $chemistry -o ${out_name_dir}_ks_transcripts_out -t $threads $string_fastqz  --overwrite                                                                   
         """
 } 
 
@@ -213,11 +216,12 @@ process mappingGuide {
     tuple path(k_bin)
     tuple val(chemistry)
     tuple val(threads)
+    tuple val(whitelist)
     output:
     path ("${out_name_dir}_ks_guide_out"),  emit: ks_guide_out
     script:
         """
-        kb count -i $guide_index       -g  $t2tguide_index --verbose   --report  --workflow kite --h5ad --kallisto $k_bin -x $chemistry  -o ${out_name_dir}_ks_guide_out -t $threads $string_fastqz --overwrite
+        kb count -i $guide_index       -g  $t2tguide_index --verbose   --report  --workflow kite -w $whitelist  --h5ad --kallisto $k_bin -x $chemistry  -o ${out_name_dir}_ks_guide_out -t $threads $string_fastqz --overwrite
         """
 } 
 
