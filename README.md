@@ -131,15 +131,16 @@ mamba install -c conda-forge r-ragg -y
 Rscript -e 'install.packages("devtools", repos = "http://cran.us.r-project.org")'
 mamba install -c conda-forge r-ggplot2
 Rscript -e 'devtools::install_github("katsevich-lab/sceptre")'
+pip install muon
 ```
 
 ---
 
 ## TODO  JAMBOREE 
 
-- [ ] Create a docker image  
+- [x] Create a docker image  
 - [ ] Create a conda yml  
-- [ ] Decide on the experimental demo dataset (Maybe subsampling the gasperini 2019)  
+- [x] Decide on the experimental demo dataset (Maybe subsampling the gasperini 2019)  
 
 ## TODO pipeline
 
@@ -147,12 +148,12 @@ Rscript -e 'devtools::install_github("katsevich-lab/sceptre")'
 - [X] Eliminate guides present with less than 30 cells
 - [X] Fix the single batch problem 
 - [X]  SOLVE THE PROBLEM TO RUN AGAINST ALL GENES (TRANS ANALYSIS) (Should be configured by guide in the future?)
+- [x]  custom whitelist
 - [ ]  ADD PARAMETERS TO SOME OF THE FUNCTIONS (Some ARE HARDCODED NOW ..EX: merge..number of cells and etc)
 - [ ]  Create a nice description to the input files
 - [ ]  fix the Rbase version to 4.2.2
 - [ ]  change threads to cpus  (taks.cpu)
 - [ ]  probably I can provide a list of elements and ask nextflow to handle the paralelizing (receiving the elements names in a channel?)
 - [ ]  Create easing options to add 3'and 5'chemistry
-- [ ]  how is the -report flag in the count comand? is this memory expensive?
 - [ ]  Cell hashing and Multi-seq ? https://www.ncbi.nlm.nih.gov/sra?linkname=bioproject_sra_all&from_uid=719672
-- [ ]  custom whitelist
+
