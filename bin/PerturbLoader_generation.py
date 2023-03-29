@@ -9,31 +9,24 @@ from GTFProcessing import GTFProcessing
 from tqdm import tqdm
 import pickle
 import sys
-
+import muon as mu
+import mudata as md
 
 import argparse
 
 parser = argparse.ArgumentParser(description='Description of your script')
 
-parser.add_argument('-g', '--in_guide', type=str, required=True, help='Description of the first argument')
-parser.add_argument('-e', '--in_exp', type=str, required=True, help='Description of the second argument')
+parser.add_argument('-m', '--muon_data', type=str, required=True, help='muon_data with guide and scrna')
 parser.add_argument('-f', '--gtf_in', type=str, required=True, help='Description of the third argument')
 parser.add_argument('-t', '--in_trans', type=str, required=True, default="FALSE", help='Description of the fourth argument (default: FALSE)')
 parser.add_argument('-d', '--distance_from_guide', type=int, default=1000000, help='Description of the fifth argument (default: 1000000)')
 
 args = parser.parse_args()
-
-IN_GUIDE = args.in_guide
-IN_EXP = args.in_exp
+MUON_DATA = args.muon_data
 GTF_IN = args.gtf_in
-
 IN_TRANS = False if args.in_trans.upper() == 'FALSE' else True
-
 print (f'is in trans? =  {IN_TRANS} given parameter {args.in_trans } ')
 DISTANCE_FROM_GUIDE = int(args.distance_from_guide)
-
-
-
 NUMBER_FOR_RANDOM_CONTROLS = 10
 
 
@@ -46,11 +39,11 @@ NUMBER_FOR_RANDOM_CONTROLS = 10
 # NUMBER_FOR_RANDOM_CONTROLS = 10
 
 
+muon_structure = md.read(MUON_DATA)
 
 
-
-ann_exp =   anndata.read(IN_EXP)
-ann_guide = anndata.read(IN_GUIDE)
+ann_exp   =   muon_structure['guides'].copy()
+ann_guide =   muon_structure['scRNA'].copy()
 
 print (ann_guide.var.index.values)
 
@@ -194,7 +187,3 @@ filename = 'perturbdata.pkl'
 outfile = open(filename,'wb')
 pickle.dump(p,outfile)
 outfile.close()
-
-
-
-
