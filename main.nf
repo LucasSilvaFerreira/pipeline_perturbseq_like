@@ -88,7 +88,8 @@ workflow {
     merge_bin_and_muon_out =  merge_bin_and_muon( moun_raw_creation.raw_moun_data, params.GUIDE_UMI_LIMIT )
 
     pert_loader_out = PerturbLoaderGeneration(merge_bin_and_muon_out.muon_processed , gtf_out.gtf , params.DISTANCE_NEIGHBORS, params.IN_TRANS )
-    runSceptre(pert_loader_out.perturb_piclke)
+    runSceptre_out = runSceptre(pert_loader_out.perturb_piclke)
+    create_anndata_from_sceptre_out = create_anndata_from_sceptre(runSceptre_out.sceptre_out_dir)
     
     
 }
@@ -387,11 +388,28 @@ process runSceptre {
     debug true
     input:
     path (perturbloader_pickle)
-
+    output:
+    path 'sceptre_out' , emit: sceptre_out_dir
     
    """ 
+   mkdir sceptre_out
+   mv $perturbloader_pickle sceptre_out
+   cd sceptre_out
    runSceptre.py $perturbloader_pickle
-
     """   
 }
+
+process create_anndata_from_sceptre {
+    debug true
+    input:
+    path (sceptre_results_dir)
+    output:
+    path 'sceptre_results_ann_data.h5ad', emit:sceptre_results_anndata
+    
+   """ 
+   sceptre_anndata_creation.py $sceptre_results_dir
+   """   
+}
+
+
 
