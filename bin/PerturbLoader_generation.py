@@ -42,8 +42,8 @@ NUMBER_FOR_RANDOM_CONTROLS = 10
 muon_structure = md.read(MUON_DATA)
 
 
-ann_exp   =   muon_structure['guides'].copy()
-ann_guide =   muon_structure['scRNA'].copy()
+ann_exp   =   muon_structure['scRNA'].copy()
+ann_guide =   muon_structure['guides'].copy()
 
 print (ann_guide.var.index.values)
 

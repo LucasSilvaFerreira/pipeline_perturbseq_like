@@ -142,7 +142,7 @@ def converting_final_table_to_anndata(Gene_matrix, merged_guide_matrix_binary, c
 
 
     
-    mdata =  mu.MuData({"guides":  ann_exp, "scRNA":  ann_guide})
+    mdata =  mu.MuData({"guides":ann_guide  , "scRNA":   ann_exp })
     mdata.write("processed_mudata_guide_and_transcripts.h5mu")
     # ann_guide.write(f'results_per_lane/processed_anndata_guides_data.h5ad')
     # ann_exp.write(  f'results_per_lane/processed_anndata_transcripts_data.h5ad')
@@ -165,7 +165,7 @@ MERGE= args.merge
 GUIDE_UMI_LIMIT= args.guide_umi_limit
 
 mu_data_in =  muon_load(MUON_DATA)
-print(mu_data_in['guides'].var.head(), 'guides')
+print('guides', mu_data_in['guides'].var.head())
 guides_to_merge_out = merge_data( mu_data_in['guides'], MERGE) 
 
 processed_guide = binaryzing_matrix(guides_to_merge_out, GUIDE_UMI_LIMIT )

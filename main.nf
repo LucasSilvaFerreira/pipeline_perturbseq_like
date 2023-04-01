@@ -1,4 +1,4 @@
-// Declare syntax version
+/ Declare syntax version
 nextflow.enable.dsl=2
 // Script parameters
 //params.GTF_GZ_LINK = 'http://ftp.ensembl.org/pub/release-106/gtf/homo_sapiens/Homo_sapiens.GRCh38.106.gtf.gz'
@@ -89,7 +89,7 @@ workflow {
 
     pert_loader_out = PerturbLoaderGeneration(merge_bin_and_muon_out.muon_processed , gtf_out.gtf , params.DISTANCE_NEIGHBORS, params.IN_TRANS )
     runSceptre_out = runSceptre(pert_loader_out.perturb_piclke)
-    create_anndata_from_sceptre_out = create_anndata_from_sceptre(runSceptre_out.sceptre_out_dir)
+    create_anndata_from_sceptre_out = create_anndata_from_sceptre(runSceptre_out.sceptre_out_dir, merge_bin_and_muon_out.muon_processed)
     
     
 }
@@ -214,6 +214,7 @@ process compositionREADSGuides {
 
 
 process mappingscRNA {
+    cpus 4
     debug true
     input:
     tuple val(out_name_dir)
@@ -231,7 +232,7 @@ process mappingscRNA {
     
         """
 	echo "kb count -i $transcriptome_idx -g  $t2t_transcriptome_index --verbose --workflow kite -w $whitelist --h5ad --kallisto $k_bin -x $chemistry -o ${out_name_dir}_ks_transcripts_out -t $threads $string_fastqz  --overwrite"
-        kb count -i $transcriptome_idx -g  $t2t_transcriptome_index --verbose --workflow kite -w $whitelist --h5ad --kallisto $k_bin -x $chemistry -o ${out_name_dir}_ks_transcripts_out -t $threads $string_fastqz  --overwrite                                                                   
+        kb count -i $transcriptome_idx -g  $t2t_transcriptome_index --verbose --workflow kite -w $whitelist --h5ad --kallisto $k_bin -x $chemistry -o ${out_name_dir}_ks_transcripts_out -t ${task.cpus} $string_fastqz  --overwrite                                                                   
         """
 } 
 
@@ -396,20 +397,19 @@ process runSceptre {
    mv $perturbloader_pickle sceptre_out
    cd sceptre_out
    runSceptre.py $perturbloader_pickle
-    """   
+   """   
 }
 
 process create_anndata_from_sceptre {
     debug true
     input:
     path (sceptre_results_dir)
+    path (mudata_processed)
     output:
-    path 'sceptre_results_ann_data.h5ad', emit:sceptre_results_anndata
+    path 'mudata_results.h5mu' , emit:  mudata_perturbation_results
     
    """ 
-   sceptre_anndata_creation.py $sceptre_results_dir
+   sceptre_anndata_creation.py $sceptre_results_dir $mudata_processed
    """   
 }
-
-
 

@@ -18,6 +18,11 @@ TRANSCRIPT_FILE = args.transcript_file
 GTF_IN = args.gtf_in
 ANN_EXP = args.ann_exp
 
+print(ANN_GUIDE)
+
+print(anndata.read(ANN_GUIDE).var)
+
+
 
 def ann_guide_modification():
     ann_guide = anndata.read(ANN_GUIDE)
