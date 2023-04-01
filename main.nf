@@ -1,4 +1,4 @@
-/ Declare syntax version
+// Declare syntax version
 nextflow.enable.dsl=2
 // Script parameters
 //params.GTF_GZ_LINK = 'http://ftp.ensembl.org/pub/release-106/gtf/homo_sapiens/Homo_sapiens.GRCh38.106.gtf.gz'
