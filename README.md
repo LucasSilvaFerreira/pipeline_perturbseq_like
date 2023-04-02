@@ -153,7 +153,6 @@ Rscript -e 'install.packages("devtools", repos = "http://cran.us.r-project.org")
 Rscript -e 'devtools::install_github("katsevich-lab/sceptre")'
 Rscript -e 'devtools::install_github("chris-mcginnis-ucsf/MULTI-seq")'
 pip install muon
-pip install deeptools
 pip install scrublet
 pip install pybiomart
 mamba create -n pygenomictracks pygenometracks==3.8 -c bioconda -y
