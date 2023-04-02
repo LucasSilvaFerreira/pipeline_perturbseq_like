@@ -1,12 +1,12 @@
 # Pipeline single Cell Perturb-seq like
 
 
-#Jamboree
+## Jamboree Participants
 
 
 
-Use the __run_jamboree_v2.ipynb__  to run the pipeline in a subset of the dataset gasperini.   
-Case you want to test the pipeline outside the jamboree uing the same dataset use this script to build the dataset in your own server:
+- Use the __run_jamboree_v2.ipynb__  to run the pipeline in a subset of the dataset gasperini.
+- Case you want to test the pipeline outside the jamboree uing the same dataset use this script to build the dataset in your own server:
 ```bash
 NTHREADS=16
 
@@ -17,6 +17,9 @@ wget https://sra-pub-src-1.s3.amazonaws.com/SRR7967488/pilot_highmoi_screen.1_CG
 wget https://sra-pub-src-1.s3.amazonaws.com/SRR7967482/pilot_highmoi_screen.1_SI_GA_G1.bam.1;mv pilot_highmoi_screen.1_SI_GA_G1.bam.1 pilot_highmoi_screen.1_SI_GA_G1.bam
 ./bamtofastq_linux --nthreads="$NTHREADS" pilot_highmoi_screen.1_SI_GA_G1.bam bam_pilot_scrna_1
 ````
+
+- Check the requirement session to install a conda env  with all the packages (conda activate the env perturbseq_like_pipeline before running the pipeline)
+- __run_jamboree_v2.ipynb__  will create the config file and it can be used to run the pipeline (just fix the paths for your own server)  
 
 ---
 ## Running the Pipeline:  
