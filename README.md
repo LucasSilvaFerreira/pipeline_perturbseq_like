@@ -1,4 +1,23 @@
 # Pipeline single Cell Perturb-seq like
+
+
+#Jamboree
+
+
+
+Use the __run_jamboree_v2.ipynb__  to run the pipeline in a subset of the dataset gasperini.   
+Case you want to test the pipeline outside the jamboree uing the same dataset use this script to build the dataset in your own server:
+```bash
+NTHREADS=16
+
+wget https://github.com/10XGenomics/bamtofastq/releases/download/v1.4.1/bamtofastq_linux; chmod +x bamtofastq_linux
+wget https://sra-pub-src-1.s3.amazonaws.com/SRR7967488/pilot_highmoi_screen.1_CGTTACCG.grna.bam.1;mv pilot_highmoi_screen.1_CGTTACCG.grna.bam.1 pilot_highmoi_screen.1_CGTTACCG.grna.bam
+./bamtofastq_linux --nthreads="$NTHREADS" pilot_highmoi_screen.1_CGTTACCG.grna.bam bam_pilot_guide_1
+
+wget https://sra-pub-src-1.s3.amazonaws.com/SRR7967482/pilot_highmoi_screen.1_SI_GA_G1.bam.1;mv pilot_highmoi_screen.1_SI_GA_G1.bam.1 pilot_highmoi_screen.1_SI_GA_G1.bam
+./bamtofastq_linux --nthreads="$NTHREADS" pilot_highmoi_screen.1_SI_GA_G1.bam bam_pilot_scrna_1
+````
+
 ---
 ## Running the Pipeline:  
 
@@ -116,22 +135,29 @@ pip uninstall GTFProcessing -y
 pip install git+https://github.com/LucasSilvaFerreira/GTFProcessing.git
 pip install gtfparse==1.3.0
 pip install git+https://github.com/LucasSilvaFerreira/Perturb_Loader.git
+pip install --quiet kb-python
+conda install -c conda-forge mamba -y
 mamba install -c bioconda nextflow -y
 mamba install -c bioconda kallisto -y
-pip install --quiet kb-python
-mamba install -c anaconda openpyxl -y 
-mamba install -c conda-forge r-base -y 
+mamba install -c anaconda openpyxl -y
+mamba install -c conda-forge r-base -y
+mamba install -c conda-forge r-gert -y
+mamba install -c conda-forge r-ragg -y
+mamba install -c conda-forge r-ggplot2
 Rscript -e 'install.packages("BiocManager", repos = "http://cran.us.r-project.org")'
 Rscript -e 'BiocManager::install("Rhdf5lib")'
 Rscript -e 'BiocManager::install("rhdf5")'
+Rscript -e 'BiocManager::install("ShortRead")'
 Rscript -e 'install.packages("doParallel", repos = "http://cran.us.r-project.org")'
 Rscript -e 'install.packages("devtools", repos = "http://cran.us.r-project.org")'
-mamba install -c conda-forge r-gert -y 
-mamba install -c conda-forge r-ragg -y
-Rscript -e 'install.packages("devtools", repos = "http://cran.us.r-project.org")'
-mamba install -c conda-forge r-ggplot2
 Rscript -e 'devtools::install_github("katsevich-lab/sceptre")'
+Rscript -e 'devtools::install_github("chris-mcginnis-ucsf/MULTI-seq")'
 pip install muon
+pip install deeptools
+pip install scrublet
+pip install pybiomart
+mamba create -n pygenomictracks pygenometracks==3.8 -c bioconda -y
+
 ```
 
 ---
