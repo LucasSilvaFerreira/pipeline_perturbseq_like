@@ -380,7 +380,7 @@ process PerturbLoaderGeneration {
     path 'perturbdata.pkl', emit: perturb_piclke
     
    """ 
-   PerturbLoader_generation.py --muon_data $muon_data --gtf_in $gtf_in  --distance_from_guide $distance_from_guide --in_trans $in_trans
+   PerturbLoader_generation.py --muon_data $muon_data --gtf_in $gtf_in  --distance_from_guide $distance_from_guide --in_trans $in_trans --add_gene_names $addgenes 
 
     """   
 }
