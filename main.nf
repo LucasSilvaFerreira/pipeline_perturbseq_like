@@ -87,7 +87,7 @@ workflow {
     
     merge_bin_and_muon_out =  merge_bin_and_muon( moun_raw_creation.raw_moun_data, params.GUIDE_UMI_LIMIT )
 
-    pert_loader_out = PerturbLoaderGeneration(merge_bin_and_muon_out.muon_processed , gtf_out.gtf , params.DISTANCE_NEIGHBORS, params.IN_TRANS )
+    pert_loader_out = PerturbLoaderGeneration(merge_bin_and_muon_out.muon_processed , gtf_out.gtf , params.DISTANCE_NEIGHBORS, params.IN_TRANS, params.ADDGENENAMES )
     runSceptre_out = runSceptre(pert_loader_out.perturb_piclke)
     create_anndata_from_sceptre_out = create_anndata_from_sceptre(runSceptre_out.sceptre_out_dir, merge_bin_and_muon_out.muon_processed)
     
@@ -375,6 +375,7 @@ process PerturbLoaderGeneration {
     path (gtf_in)
     val (distance_from_guide)
     val (in_trans)
+    val (addgenes)
     output:
     path 'perturbdata.pkl', emit: perturb_piclke
     

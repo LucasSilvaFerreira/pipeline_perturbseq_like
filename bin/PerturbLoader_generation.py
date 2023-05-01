@@ -20,6 +20,8 @@ parser.add_argument('-m', '--muon_data', type=str, required=True, help='muon_dat
 parser.add_argument('-f', '--gtf_in', type=str, required=True, help='Description of the third argument')
 parser.add_argument('-t', '--in_trans', type=str, required=True, default="FALSE", help='Description of the fourth argument (default: FALSE)')
 parser.add_argument('-d', '--distance_from_guide', type=int, default=1000000, help='Description of the fifth argument (default: 1000000)')
+parser.add_argument('-g', '--add_gene_names', type=str, required=False, help='gene names separated by comma')
+
 
 args = parser.parse_args()
 MUON_DATA = args.muon_data
@@ -27,6 +29,10 @@ GTF_IN = args.gtf_in
 IN_TRANS = False if args.in_trans.upper() == 'FALSE' else True
 print (f'is in trans? =  {IN_TRANS} given parameter {args.in_trans } ')
 DISTANCE_FROM_GUIDE = int(args.distance_from_guide)
+ADD_GENE_NAMES = [g for g in args.add_gene_names.split(',')]
+
+
+
 NUMBER_FOR_RANDOM_CONTROLS = 10
 
 
@@ -153,6 +159,7 @@ final_element_binary = []
 for element in  tqdm(ann_Element_guide.obs.index):
   print (element)    
   set_of_elements = is_gene_included(element)
+  set_of_elements = set_of_elements.union(set(ADD_GENE_NAMES))
   print (set_of_elements, 'set_of_elements')
   presence_gene_e = []
   for e in  ann_exp.var.index.values:
