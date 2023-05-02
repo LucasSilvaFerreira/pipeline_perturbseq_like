@@ -10,8 +10,7 @@ import sys
 
 #loading picke file
 PICKE_PATH = 'perturbdata.pkl'
-#PICKE_PATH = sys.argv[1]
-
+DIRECTION = sys.argv[2] #left, right, both
 with open(PICKE_PATH, 'rb') as f:
     p = pickle.load(f)
 
@@ -82,7 +81,7 @@ def run_sceprte_by_element(ELEMENT, name_element='positive_control'):
                                             covariate_matrix = cov,
                                             gene_gRNA_group_pairs = pairs_test,
 
-                                            side='left',
+                                            side='{DIRECTION}',
                                             )
 
 

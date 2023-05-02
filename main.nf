@@ -15,7 +15,7 @@ nextflow.enable.dsl=2
 //params.FASTQ_FILES_GUIDES = ['5p27sgRNAsgRNA_02KRWK_11408_S15_L001_R1_001.fastq.gz 5p27sgRNAsgRNA_02KRWK_11408_S15_L001_R2_001.fastq.gz' ]
 //params.FASTQ_NAMES_GUIDES = ['S1_L1']
 //params.CREATE_REF = false
-
+//params.DIRECTION  = "left"  "right"  "both"
 
  
 
@@ -88,7 +88,7 @@ workflow {
     merge_bin_and_muon_out =  merge_bin_and_muon( moun_raw_creation.raw_moun_data, params.GUIDE_UMI_LIMIT )
 
     pert_loader_out = PerturbLoaderGeneration(merge_bin_and_muon_out.muon_processed , gtf_out.gtf , params.DISTANCE_NEIGHBORS, params.IN_TRANS, params.ADDGENENAMES )
-    runSceptre_out = runSceptre(pert_loader_out.perturb_piclke)
+    runSceptre_out = runSceptre(pert_loader_out.perturb_piclke, params.DIRECTION)
     create_anndata_from_sceptre_out = create_anndata_from_sceptre(runSceptre_out.sceptre_out_dir, merge_bin_and_muon_out.muon_processed)
     
     
@@ -390,6 +390,7 @@ process runSceptre {
     debug true
     input:
     path (perturbloader_pickle)
+    val (direction)
     output:
     path 'sceptre_out' , emit: sceptre_out_dir
     
@@ -397,7 +398,7 @@ process runSceptre {
    mkdir sceptre_out
    mv $perturbloader_pickle sceptre_out
    cd sceptre_out
-   runSceptre.py $perturbloader_pickle
+   runSceptre.py $perturbloader_pickle  $direction
    """   
 }
 
