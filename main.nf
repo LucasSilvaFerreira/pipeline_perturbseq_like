@@ -432,7 +432,7 @@ process runSceptre {
     path 'sceptre_out' , emit: sceptre_out_dir
     
    """ 
-   mkdir sceptre_out
+   mkdir sceptre_out  2>/dev/null
    mv $perturbloader_pickle sceptre_out
    cd sceptre_out
    runSceptre.py $perturbloader_pickle  $direction
@@ -528,13 +528,13 @@ process select_final_muon{
     script:
         if (params.RUN_MULTISEQ){   
             """
-            cp $SCRNA_GUIDE muon_selected_final.h5mu
+            cp $SCRA_GUIDE_MULTI muon_selected_final.h5mu
             """
         }
         else{
 
             """
-            cp $SCRA_GUIDE_MULTI muon_selected_final.h5mu
+            cp $SCRA_GUIDE muon_selected_final.h5mu
             """
         }
 
