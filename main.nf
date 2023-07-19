@@ -1,6 +1,7 @@
 // Declare syntax version
 nextflow.enable.dsl=2
 // Script parameters
+//params-ALIGN_MEMORY = 20G
 //params.GTF_GZ_LINK = 'http://ftp.ensembl.org/pub/release-106/gtf/homo_sapiens/Homo_sapiens.GRCh38.106.gtf.gz'
 //params.TRANSCRIPTOME_REFERENCE = "human"
 //params.KALLISTO_BIN = '/home/lf114/miniconda3/envs/perturbseq_pipeline/bin/kallisto'
@@ -16,10 +17,21 @@ nextflow.enable.dsl=2
 //params.FASTQ_NAMES_GUIDES = ['S1_L1']
 //params.CREATE_REF = false
 //params.DIRECTION  = "left"  "right"  "both"
+//params.RUN_MULTISEQ = true
+//params.R1_MULTI =                     '/n/data1/bch/hemonc/bauer/archana/NovaSeq5_second_release/01.RawData/MSeqhighMOI_RPI_3/MSeqhighMOI_RPI_3_CKDL230003506-1A_HT2MJDSX5_L4_1.fq.gz' 
+//params.R2_MULTI =                     '/n/data1/bch/hemonc/bauer/archana/NovaSeq5_second_release/01.RawData/MSeqhighMOI_RPI_3/MSeqhighMOI_RPI_3_CKDL230003506-1A_HT2MJDSX5_L4_2.fq.gz'
+//params.BARCODES_MULTIBAR_LIST_MULTI = '/n/data1/bch/hemonc/bauer/lucassilva/yanhua_perturb/high_moi_multi_barcode.csv'
+//params.BAR_MULTI= [1,16]         
+//params.UMI_MULTI= [17,28]         
+//params.R2_MULTI_TAG = [1,8]          
 
- 
+
 
 workflow {
+
+   dummy(params.R1_MULTI)
+   
+   
    dir_images_composition_scrna =  compositionREADSscRNA(Channel.from(params.FASTQ_NAMES_TRANSCRIPTS), Channel.from(params.FASTQ_FILES_TRANSCRIPTS))
    dir_images_composition_guides = compositionREADSGuides(Channel.from(params.FASTQ_NAMES_GUIDES), Channel.from(params.FASTQ_FILES_GUIDES))
 
@@ -87,9 +99,28 @@ workflow {
     
     merge_bin_and_muon_out =  merge_bin_and_muon( moun_raw_creation.raw_moun_data, params.GUIDE_UMI_LIMIT )
 
-    pert_loader_out = PerturbLoaderGeneration(merge_bin_and_muon_out.muon_processed , gtf_out.gtf , params.DISTANCE_NEIGHBORS, params.IN_TRANS, params.ADDGENENAMES )
+
+
+    out_pre_bar_multiseq = preprocess_bar_multiseq(merge_bin_and_muon_out.muon_processed)
+    out_pre_bar_multiseq.view()
+    
+    
+    multi_out = MultiSeq(params.R1_MULTI,
+                params.R2_MULTI,
+                out_pre_bar_multiseq.cell_barcode_to_multi,
+                params.BARCODES_MULTIBAR_LIST_MULTI ,
+                params.BAR_MULTI,
+                params.UMI_MULTI,
+                params.R2_MULTI_TAG,
+                merge_bin_and_muon_out.muon_processed)
+
+
+
+    muon_final =  select_final_muon(merge_bin_and_muon_out.muon_processed, multi_out.muon_with_multiseq)
+
+    pert_loader_out = PerturbLoaderGeneration(muon_final.final_muon , gtf_out.gtf , params.DISTANCE_NEIGHBORS, params.IN_TRANS, params.ADDGENENAMES )
     runSceptre_out = runSceptre(pert_loader_out.perturb_piclke, params.DIRECTION)
-    create_anndata_from_sceptre_out = create_anndata_from_sceptre(runSceptre_out.sceptre_out_dir, merge_bin_and_muon_out.muon_processed)
+    create_anndata_from_sceptre_out = create_anndata_from_sceptre(runSceptre_out.sceptre_out_dir, muon_final.final_muon )
     
     
 }
@@ -214,7 +245,9 @@ process compositionREADSGuides {
 
 
 process mappingscRNA {
-    cpus 4
+    cache 'lenient'
+    memory '38 GB'
+    cpus 10
     debug true
     input:
     tuple val(out_name_dir)
@@ -225,19 +258,22 @@ process mappingscRNA {
     tuple val(chemistry)
     tuple val(threads)
     tuple val(whitelist)
+    
     output:
     path ("${out_name_dir}_ks_transcripts_out"),  emit: ks_transcripts_out
 
     script:
     
         """
-	echo "kb count -i $transcriptome_idx -g  $t2t_transcriptome_index --verbose --workflow kite -w $whitelist --h5ad --kallisto $k_bin -x $chemistry -o ${out_name_dir}_ks_transcripts_out -t $threads $string_fastqz  --overwrite"
-        kb count -i $transcriptome_idx -g  $t2t_transcriptome_index --verbose --workflow kite -w $whitelist --h5ad --kallisto $k_bin -x $chemistry -o ${out_name_dir}_ks_transcripts_out -t ${task.cpus} $string_fastqz  --overwrite                                                                   
+	echo "kb count -i $transcriptome_idx -g  $t2t_transcriptome_index --verbose --workflow kite -w $whitelist --h5ad --kallisto $k_bin -x $chemistry -o ${out_name_dir}_ks_transcripts_out -t $threads $string_fastqz  --overwrite" -m 38G
+        kb count -i $transcriptome_idx -g  $t2t_transcriptome_index --verbose --workflow kite -w $whitelist --h5ad --kallisto $k_bin -x $chemistry -o ${out_name_dir}_ks_transcripts_out -t ${task.cpus} $string_fastqz  --overwrite    -m 38G                                                                
         """
 } 
 
 process mappingGuide {
-    cpus 3
+    cache 'lenient'
+    mem = '38 GB'
+    cpus 10
     debug true
     input:
     tuple val(out_name_dir)
@@ -248,11 +284,12 @@ process mappingGuide {
     tuple val(chemistry)
     tuple val(threads)
     tuple val(whitelist)
+
     output:
     path ("${out_name_dir}_ks_guide_out"),  emit: ks_guide_out
     script:
         """
-        kb count -i $guide_index       -g  $t2tguide_index --verbose   --report  --workflow kite -w $whitelist  --h5ad --kallisto $k_bin -x $chemistry  -o ${out_name_dir}_ks_guide_out -t ${task.cpus} $string_fastqz --overwrite
+        kb count -i $guide_index       -g  $t2tguide_index --verbose   --report  --workflow kite -w $whitelist  --h5ad --kallisto $k_bin -x $chemistry  -o ${out_name_dir}_ks_guide_out -t ${task.cpus} $string_fastqz --overwrite -m 38G
         """
 } 
 
@@ -407,11 +444,111 @@ process create_anndata_from_sceptre {
     input:
     path (sceptre_results_dir)
     path (mudata_processed)
+    
     output:
     path 'mudata_results.h5mu' , emit:  mudata_perturbation_results
     
    """ 
    sceptre_anndata_creation.py $sceptre_results_dir $mudata_processed
    """   
+
+
 }
 
+
+
+
+process preprocess_bar_multiseq{
+    debug true
+    input:
+        path (MUON_DATA)
+    output:
+        path 'cell_barcode_capturing.csv',     emit: cell_barcode_to_multi
+
+    
+    
+    when:
+        params.RUN_MULTISEQ
+    """ 
+
+        preprocessing_muon_multi.py $MUON_DATA
+    
+    """   
+}
+
+process  MultiSeq{
+    debug true
+    input:
+        path (R1_MULTI)
+        path (R2_MULTI)
+        path (BARCODES_CELL_LIST_MULTI)
+        path (BARCODES_MULTIBAR_LIST_MULTI)
+        val (BAR_MULTI)
+        val (UMI_MULTI)
+        val (R2_MULTI_TAG)
+        path (MUON_DATA)
+        
+    output:
+        path 'final_class.csv',               emit: multi_class
+        path 'final_class_cell_barcode.csv', emit: multi_class_barcode
+        path  'bar_table.csv' ,         emit: bar_count
+        path  'processed_mudata_guide_and_transcripts_multiseq_filtered.h5mu', emit: muon_with_multiseq
+    
+    when:
+        params.RUN_MULTISEQ
+    
+    
+    script:
+        BAR_MULTI_0 = BAR_MULTI[0]
+        UMI_MULTI_0 = UMI_MULTI[0]
+        R2_MULTI_TAG_0 = R2_MULTI_TAG[0]
+        BAR_MULTI_1 =  BAR_MULTI[1]
+        UMI_MULTI_1 =  UMI_MULTI[1]
+        R2_MULTI_TAG_1 =  R2_MULTI_TAG[1]
+              
+    
+    """
+        echo $R1_MULTI
+        multiseq.py $R1_MULTI $R2_MULTI $BARCODES_CELL_LIST_MULTI $BARCODES_MULTIBAR_LIST_MULTI $BAR_MULTI_0 $BAR_MULTI_1 $UMI_MULTI_0 $UMI_MULTI_1 $R2_MULTI_TAG_0 $R2_MULTI_TAG_1 $MUON_DATA
+    """    
+}
+
+
+
+
+
+
+process select_final_muon{
+    debug true
+    input:
+        path(SCRNA_GUIDE)
+        path(SCRA_GUIDE_MULTI)
+    output:
+        path 'muon_selected_final.h5mu', emit:  final_muon
+    script:
+        if (params.RUN_MULTISEQ){   
+            """
+            cp $SCRNA_GUIDE muon_selected_final.h5mu
+            """
+        }
+        else{
+
+            """
+            cp $SCRA_GUIDE_MULTI muon_selected_final.h5mu
+            """
+        }
+
+
+
+}
+
+process dummy{
+    debug true
+    input:
+        path (R1_MULTI)
+    script:
+    """
+    echo $R1_MULTI
+    """
+
+}
