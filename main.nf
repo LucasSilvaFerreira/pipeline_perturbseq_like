@@ -246,7 +246,6 @@ process compositionREADSGuides {
 
 process mappingscRNA {
     cache 'lenient'
-    memory '38 GB'
     cpus 10
     debug true
     input:
@@ -265,14 +264,13 @@ process mappingscRNA {
     script:
     
         """
-	echo "kb count -i $transcriptome_idx -g  $t2t_transcriptome_index --verbose --workflow kite -w $whitelist --h5ad --kallisto $k_bin -x $chemistry -o ${out_name_dir}_ks_transcripts_out -t $threads $string_fastqz  --overwrite" -m 38G
-        kb count -i $transcriptome_idx -g  $t2t_transcriptome_index --verbose --workflow kite -w $whitelist --h5ad --kallisto $k_bin -x $chemistry -o ${out_name_dir}_ks_transcripts_out -t ${task.cpus} $string_fastqz  --overwrite    -m 38G                                                                
+	echo "kb count -i $transcriptome_idx -g  $t2t_transcriptome_index --verbose --workflow kite -w $whitelist --h5ad --kallisto $k_bin -x $chemistry -o ${out_name_dir}_ks_transcripts_out -t $threads $string_fastqz  --overwrite" -m 48G
+        kb count -i $transcriptome_idx -g  $t2t_transcriptome_index --verbose --workflow kite -w $whitelist --h5ad --kallisto $k_bin -x $chemistry -o ${out_name_dir}_ks_transcripts_out -t ${task.cpus} $string_fastqz  --overwrite    -m 48G                                                                
         """
 } 
 
 process mappingGuide {
     cache 'lenient'
-    mem = '38 GB'
     cpus 10
     debug true
     input:
@@ -289,7 +287,7 @@ process mappingGuide {
     path ("${out_name_dir}_ks_guide_out"),  emit: ks_guide_out
     script:
         """
-        kb count -i $guide_index       -g  $t2tguide_index --verbose   --report  --workflow kite -w $whitelist  --h5ad --kallisto $k_bin -x $chemistry  -o ${out_name_dir}_ks_guide_out -t ${task.cpus} $string_fastqz --overwrite -m 38G
+        kb count -i $guide_index       -g  $t2tguide_index --verbose   --report  --workflow kite -w $whitelist  --h5ad --kallisto $k_bin -x $chemistry  -o ${out_name_dir}_ks_guide_out -t ${task.cpus} $string_fastqz --overwrite -m 48G
         """
 } 
 
