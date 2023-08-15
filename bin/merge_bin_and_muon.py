@@ -43,6 +43,7 @@ def merge_data(concat_guide_ann, MERGE=False):
     guides_to_merge_out = pd.DataFrame([ guides_to_merge_numpy[v.index.values].sum(0) for k,v in grouped_version])
     guides_to_merge_out.index = list(grouped_version.groups.keys())
     guides_to_merge_out.columns = concat_guide_ann.obs.index.values
+    #print ('debug',guides_to_merge_out,guides_to_merge_out.shape)
     return guides_to_merge_out
        
     
@@ -51,6 +52,7 @@ def binaryzing_matrix(guides_to_merge_out, GUIDE_UMI_LIMIT=5 ):
     print ('Binarizing guide')
     guide_matrix = guides_to_merge_out
     merged_guide_matrix_binary   =  (guide_matrix > GUIDE_UMI_LIMIT) * 1
+
     return merged_guide_matrix_binary
 
 
@@ -83,7 +85,7 @@ def generating_covariates(concat_scrna_ann, guide_matrix):
     return covariate_matrix
 
 
-def converting_final_table_to_anndata(Gene_matrix, merged_guide_matrix_binary, covariate_matrix, mu_data_to_vars):
+def converting_final_table_to_anndata(Gene_matrix, merged_guide_matrix_binary, covariate_matrix, mu_data_to_vars, merged=False):
     '''
     ## Creating a simple ANNDATA structures
     #The transcriptomes and guide matrix will generate Anndata vars and  the covariates will be stored in the anndata.obs (in both anndatas) 
@@ -103,23 +105,35 @@ def converting_final_table_to_anndata(Gene_matrix, merged_guide_matrix_binary, c
     expression = expression.loc[:,~expression.columns.duplicated()] #remove duplicate genes
     
     ann_exp =   AnnData(X=expression, obs=covariates)
+    # print ('==========')
+    # print (guide, guide.shape, guide.head)
     ann_guide = AnnData(X=guide, obs=covariates)
+    print (']=======================GUIDE=========================')
+
+    print (ann_guide)
+    print (ann_guide.obs)
+    print ('var',ann_guide.var)
     #print (']=======================EXPRESSION=========================')
     #print (ann_exp.var.head(), 'ann_exp no muon')
-    #print (']=======================GUIDE=========================')
-    #print (ann_guide.var.head(), 'ann_guide no muon')
+    # print (']=======================GUIDE=========================')
+    # print (ann_guide.var.head(), 'ann_guide no muon',ann_guide )
     #print (']=======================muon EXPRESSION=========================')
     mu_data_to_vars['scRNA'].var['ensg'] = mu_data_to_vars['scRNA'].var.index.values
     mu_data_to_vars['scRNA'].var.index = mu_data_to_vars['scRNA'].var['feature_name'].values  
     #print (mu_data_to_vars['scRNA'].var.head())
-    #print (']=======================muon GUIDE=========================')
-    #print (mu_data_to_vars['guides'].var.head())
+    print (']=======================muon GUIDE=========================')
+    print (mu_data_to_vars['guides'].var.head())
     
 
     set_exp =   set(mu_data_to_vars['scRNA'].var.index.values).intersection(ann_exp.var.index.values)
     #print ('exp set:', len(set_exp))
-    set_guide = set(mu_data_to_vars['guides'].var.index.values).intersection(ann_guide.var.index.values)
-    #print ('guide set:', len(set_guide))
+    if not merged:
+        set_guide = set(mu_data_to_vars['guides'].var.index.values).intersection(ann_guide.var.index.values)
+    else:
+        print (ann_guide.var, 'var guides')
+        set_guide = set(ann_guide.var.index.values)
+
+    print ('guide set:', len(set_guide))
    
     ann_exp=    ann_exp[: ,   [ x in set_exp for x in       ann_exp.var.index]] 
     ann_guide = ann_guide[: , [ x in set_guide for x in  ann_guide.var.index]]
@@ -137,8 +151,10 @@ def converting_final_table_to_anndata(Gene_matrix, merged_guide_matrix_binary, c
     #print('==============end=================')
     
     ann_exp.var =      (mu_data_to_vars['scRNA'][: ,   [ x in set_exp for x in       mu_data_to_vars['scRNA'].var.index]]).var.drop_duplicates("feature_name")
-
-    ann_guide.var =     (mu_data_to_vars['guides'][: , [ x in set_guide for x in     mu_data_to_vars['guides'].var.index]]).var.drop_duplicates()
+    if not merged:
+        ann_guide.var =     (mu_data_to_vars['guides'][: , [ x in set_guide for x in     mu_data_to_vars['guides'].var.index]]).var.drop_duplicates()
+    else:
+        ann_guide.var =     (ann_guide[: , [ x in set_guide for x in     ann_guide.var.index]]).var.drop_duplicates()
 
 
     
@@ -153,7 +169,7 @@ print ('executing')
 parser = argparse.ArgumentParser(description='Description of your program')
 
 parser.add_argument('--muon_data', help='muon data path', required=True)
-parser.add_argument('--merge', action='store_true', 
+parser.add_argument('--merge', type=str,
                     help='Merge transcript counts from multiple runs of the pipeline')
 parser.add_argument('--guide_umi_limit', type=int, default=5,
                     help='The maximum number of mismatches allowed for a guide-UMI pair (default: 5)')
@@ -162,16 +178,28 @@ args = parser.parse_args()
 
 MUON_DATA = args.muon_data
 MERGE= args.merge
+print (MERGE,type(MERGE))
+if MERGE.lower()==  "true":
+    MERGE = True
+elif MERGE.lower() == "false":
+    MERGE = False
+else:
+    print (f'Merge parameter wrong, shoud be true or false {MERGE}')
+    exit()
+
+
+
 GUIDE_UMI_LIMIT= args.guide_umi_limit
 
 mu_data_in =  muon_load(MUON_DATA)
 print('guides', mu_data_in['guides'].var.head())
-guides_to_merge_out = merge_data( mu_data_in['guides'], MERGE) 
+guides_to_merge_out = merge_data( mu_data_in['guides'], MERGE) #this is being solved in another part of the script (in the filtering)
 
 processed_guide = binaryzing_matrix(guides_to_merge_out, GUIDE_UMI_LIMIT )
 
 gene_matrix = formating_exp_matrix(mu_data_in['scRNA'])
 
 covariate_matrix = generating_covariates(mu_data_in['scRNA'] , processed_guide)
-print(mu_data_in['guides'].var.head(), 'guides2')
-converting_final_table_to_anndata(gene_matrix, processed_guide, covariate_matrix , mu_data_in)
+# print(mu_data_in['guides'].var.head(), 'guides2')
+print ('debug', processed_guide,processed_guide.shape)
+converting_final_table_to_anndata(gene_matrix, processed_guide, covariate_matrix , mu_data_in, MERGE)

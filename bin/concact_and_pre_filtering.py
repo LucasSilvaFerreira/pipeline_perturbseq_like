@@ -210,6 +210,34 @@ def execute_analysis(df_files, EXPECTED_CELL_NUMBER, MITO_SPECIE, MITO_EXPECTED_
     return ann_scrna_data_to_concat, ann_guide_data_to_concat
 
 
+def merge_guides(ann_in):
+    ann_transposed_df = ann_in.to_df().T
+    dict_to_add_info = {x.split('|')[0]:x for x in ann_transposed_df.index}
+    ann_transposed_df['group_change'] = [x.split('|')[0] for x in ann_transposed_df.index]
+    final_append_merged = []
+    for k, v in ann_transposed_df.groupby('group_change'):
+        v_c = v.copy()
+        del v_c['group_change']
+        v_c
+        v_c_sum = v_c.sum(0).reset_index()
+        c_name = dict_to_add_info[k]
+        v_c_sum.columns = ['barcode', c_name ] 
+
+        final_append_merged.append( v_c_sum[c_name])
+
+    merged_guides_concat = pd.concat(final_append_merged, 1)
+    merged_guides_concat.index = ann_transposed_df.columns[:-1]
+    ann_out = AnnData(X=merged_guides_concat)
+    ann_out.var['feature_name'] = merged_guides_concat.columns
+    ann_out.obs['number_of_nonzero_guides'] =(ann_out.X > 0).sum(1)
+    print('batch on guides should not be used after merging')
+    ann_out.obs['batch_number'] = 1
+
+    return ann_out
+
+
+
+
 
 def concact_lanes(ann_scrna_data_to_concat, ann_guide_data_to_concat):
     
@@ -219,6 +247,8 @@ def concact_lanes(ann_scrna_data_to_concat, ann_guide_data_to_concat):
     concat_scrna_ann.obs_names_make_unique()
     concat_guide_ann = anndata.concat(ann_guide_data_to_concat, merge="same")
     concat_guide_ann.obs_names_make_unique()
+    # if merge:
+    #     concat_guide_ann = merge_guides(concat_guide_ann)
     return concat_scrna_ann, concat_guide_ann
 
 
@@ -258,6 +288,10 @@ parser.add_argument('--percentage_of_cells_to_include_transcript', type=float, d
 parser.add_argument('--transcripts_umi_treshold', type=int, default=100,
                     help='The minimum  UMI count  to consider keep a cell in the analysis (default: 100)')
 
+# parser.add_argument('--merge', type=str, 
+#                     help='Merge transcript counts from multiple runs of the pipeline')
+
+
 args = parser.parse_args()
 
 PATH = args.path
@@ -267,11 +301,14 @@ MITO_EXPECTED_PERCENTAGE = args.mito_expected_percentage
 PERCENTAGE_OF_CELLS_TO_INCLUDE_TRANSCRIPT = args.percentage_of_cells_to_include_transcript
 UMI_CELL_THRESHOLD = args.transcripts_umi_treshold
 
+
 df_processed = preparing_files(PATH)
 
 in_concact_scrna_ann, in_concact_guide_ann = execute_analysis(df_processed, EXPECTED_CELL_NUMBER, MITO_SPECIE, MITO_EXPECTED_PERCENTAGE, UMI_CELL_THRESHOLD )
 
 concat_scrna_ann, concat_guide_ann =  concact_lanes(in_concact_scrna_ann, in_concact_guide_ann)
+
+
 
 filtering_low_expressed_genes(concat_scrna_ann) # inplace operation
 

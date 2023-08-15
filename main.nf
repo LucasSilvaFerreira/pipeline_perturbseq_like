@@ -78,7 +78,8 @@ workflow {
                                                 params.MITO_SPECIE,
                                                 params.MITO_EXPECTED_PERCENTAGE,
                                                 params.PERCENTAGE_OF_CELLS_INCLUDING_TRANSCRIPTS,
-                                                params.TRANSCRIPTS_UMI_TRHESHOLD)
+                                                params.TRANSCRIPTS_UMI_TRHESHOLD,
+                                                )
     
     
 
@@ -96,7 +97,7 @@ workflow {
     
     
     
-    merge_bin_and_muon_out =  merge_bin_and_muon( moun_raw_creation.raw_moun_data, params.GUIDE_UMI_LIMIT )
+    merge_bin_and_muon_out =  merge_bin_and_muon( moun_raw_creation.raw_moun_data, params.GUIDE_UMI_LIMIT, params.MERGE )
 
 
 
@@ -392,12 +393,13 @@ process merge_bin_and_muon {
     input:
     path (muon_data)
     val  (guide_umi_limit)
+    val (merge)
     output:
     path 'processed_mudata_guide_and_transcripts.h5mu', emit: muon_processed
     script:
     """
     echo "merge option will  work in  future versions";
-    merge_bin_and_muon.py --muon_data  $muon_data  --guide_umi_limit $guide_umi_limit
+    merge_bin_and_muon.py --muon_data  $muon_data  --guide_umi_limit $guide_umi_limit --merge $merge
     """
 }
 
