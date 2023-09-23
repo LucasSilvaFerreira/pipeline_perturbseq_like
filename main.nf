@@ -30,7 +30,7 @@ nextflow.enable.dsl=2
 workflow {
 
    
-   
+   dummy()
    dir_images_composition_scrna =  compositionREADSscRNA(Channel.from(params.FASTQ_NAMES_TRANSCRIPTS), Channel.from(params.FASTQ_FILES_TRANSCRIPTS))
    dir_images_composition_guides = compositionREADSGuides(Channel.from(params.FASTQ_NAMES_GUIDES), Channel.from(params.FASTQ_FILES_GUIDES))
 
@@ -457,31 +457,27 @@ process create_anndata_from_sceptre {
 
 
 
-process preprocess_bar_multiseq{
+process preprocess_bar_multiseq {
     debug true
     input:
         path (MUON_DATA)
     output:
         path 'cell_barcode_capturing.csv',     emit: cell_barcode_to_multi
+    script:
+        if (params.RUN_MULTISEQ)
+            """ 
+                preprocessing_muon_multi.py $MUON_DATA
+            """   
+        else
 
+            """
+                echo 'skipping preprocessing muon multi'
+                touch cell_barcode_capturing.csv
+            """
     
-    
-    if (params.RUN_MULTISEQ){
-        
-    """ 
-
-        preprocessing_muon_multi.py $MUON_DATA
-    
-    """   
-    }else{
-    """
-        echo 'skipping preprocessing muon multi'
-        touch 'cell_barcode_capturing.csv'
-    """
-    }
 }
 
-process  MultiSeq{
+process  MultiSeq {
     debug true
     input:
         path (R1_MULTI)
@@ -498,35 +494,30 @@ process  MultiSeq{
         path 'final_class_cell_barcode.csv', emit: multi_class_barcode
         path  'bar_table.csv' ,         emit: bar_count
         path  'processed_mudata_guide_and_transcripts_multiseq_filtered.h5mu', emit: muon_with_multiseq
-    
-    
-    
-    
 
-              
-    if (params.RUN_MULTISEQ){
-        script:
-            BAR_MULTI_0 = BAR_MULTI[0]
-            UMI_MULTI_0 = UMI_MULTI[0]
-            R2_MULTI_TAG_0 = R2_MULTI_TAG[0]
-            BAR_MULTI_1 =  BAR_MULTI[1]
-            UMI_MULTI_1 =  UMI_MULTI[1]
-            R2_MULTI_TAG_1 =  R2_MULTI_TAG[1]
-
-
-    """
-        echo $R1_MULTI
-        multiseq.py $R1_MULTI $R2_MULTI $BARCODES_CELL_LIST_MULTI $BARCODES_MULTIBAR_LIST_MULTI $BAR_MULTI_0 $BAR_MULTI_1 $UMI_MULTI_0 $UMI_MULTI_1 $R2_MULTI_TAG_0 $R2_MULTI_TAG_1 $MUON_DATA
-    """ 
-    }else{
-        """
-        echo 'skiping muon'
-        touch final_class.csv
-        touch final_class_cell_barcode.csv
-        touch bar_table.csv
-        touch processed_mudata_guide_and_transcripts_multiseq_filtered.h5mu
-        """
-    }   
+    script:
+        BAR_MULTI_0 = BAR_MULTI[0]
+        UMI_MULTI_0 = UMI_MULTI[0]
+        R2_MULTI_TAG_0 = R2_MULTI_TAG[0]
+        BAR_MULTI_1 =  BAR_MULTI[1]
+        UMI_MULTI_1 =  UMI_MULTI[1]
+        R2_MULTI_TAG_1 =  R2_MULTI_TAG[1]     
+        if (params.RUN_MULTISEQ)
+            
+            """
+                echo $R1_MULTI
+                multiseq.py $R1_MULTI $R2_MULTI $BARCODES_CELL_LIST_MULTI $BARCODES_MULTIBAR_LIST_MULTI $BAR_MULTI_0 $BAR_MULTI_1 $UMI_MULTI_0 $UMI_MULTI_1 $R2_MULTI_TAG_0 $R2_MULTI_TAG_1 $MUON_DATA
+            """ 
+        
+        else
+            """
+            echo 'skiping muon'
+            touch final_class.csv
+            touch final_class_cell_barcode.csv
+            touch bar_table.csv
+            touch processed_mudata_guide_and_transcripts_multiseq_filtered.h5mu
+            """
+       
 }
 
 
@@ -542,29 +533,15 @@ process select_final_muon{
     output:
         path 'muon_selected_final.h5mu', emit:  final_muon
     script:
-        if (params.RUN_MULTISEQ){   
+        if (params.RUN_MULTISEQ)   
             """
             cp $SCRA_GUIDE_MULTI muon_selected_final.h5mu
             """
-        }
-        else{
+        
+        else
 
             """
             cp $SCRA_GUIDE muon_selected_final.h5mu
             """
-        }
-
-
-
-}
-
-process dummy{
-    debug true
-    input:
-        path (R1_MULTI)
-    script:
-    """
-    echo $R1_MULTI
-    """
 
 }
