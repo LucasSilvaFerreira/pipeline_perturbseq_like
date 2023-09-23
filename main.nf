@@ -30,7 +30,6 @@ nextflow.enable.dsl=2
 workflow {
 
    
-   dummy()
    dir_images_composition_scrna =  compositionREADSscRNA(Channel.from(params.FASTQ_NAMES_TRANSCRIPTS), Channel.from(params.FASTQ_FILES_TRANSCRIPTS))
    dir_images_composition_guides = compositionREADSGuides(Channel.from(params.FASTQ_NAMES_GUIDES), Channel.from(params.FASTQ_FILES_GUIDES))
 
