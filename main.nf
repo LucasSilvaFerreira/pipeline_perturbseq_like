@@ -466,13 +466,19 @@ process preprocess_bar_multiseq{
 
     
     
-    when:
-        params.RUN_MULTISEQ
+    if (params.RUN_MULTISEQ){
+        
     """ 
 
         preprocessing_muon_multi.py $MUON_DATA
     
     """   
+    }else{
+    """
+        echo 'skipping preprocessing muon multi'
+        touch 'cell_barcode_capturing.csv'
+    """
+    }
 }
 
 process  MultiSeq{
@@ -493,23 +499,34 @@ process  MultiSeq{
         path  'bar_table.csv' ,         emit: bar_count
         path  'processed_mudata_guide_and_transcripts_multiseq_filtered.h5mu', emit: muon_with_multiseq
     
-    when:
-        params.RUN_MULTISEQ
     
     
-    script:
-        BAR_MULTI_0 = BAR_MULTI[0]
-        UMI_MULTI_0 = UMI_MULTI[0]
-        R2_MULTI_TAG_0 = R2_MULTI_TAG[0]
-        BAR_MULTI_1 =  BAR_MULTI[1]
-        UMI_MULTI_1 =  UMI_MULTI[1]
-        R2_MULTI_TAG_1 =  R2_MULTI_TAG[1]
+    
+
               
-    
+    if (params.RUN_MULTISEQ){
+        script:
+            BAR_MULTI_0 = BAR_MULTI[0]
+            UMI_MULTI_0 = UMI_MULTI[0]
+            R2_MULTI_TAG_0 = R2_MULTI_TAG[0]
+            BAR_MULTI_1 =  BAR_MULTI[1]
+            UMI_MULTI_1 =  UMI_MULTI[1]
+            R2_MULTI_TAG_1 =  R2_MULTI_TAG[1]
+
+
     """
         echo $R1_MULTI
         multiseq.py $R1_MULTI $R2_MULTI $BARCODES_CELL_LIST_MULTI $BARCODES_MULTIBAR_LIST_MULTI $BAR_MULTI_0 $BAR_MULTI_1 $UMI_MULTI_0 $UMI_MULTI_1 $R2_MULTI_TAG_0 $R2_MULTI_TAG_1 $MUON_DATA
-    """    
+    """ 
+    }else{
+        """
+        echo 'skiping muon'
+        touch final_class.csv
+        touch final_class_cell_barcode.csv
+        touch bar_table.csv
+        touch processed_mudata_guide_and_transcripts_multiseq_filtered.h5mu
+        """
+    }   
 }
 
 

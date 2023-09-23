@@ -131,6 +131,9 @@ def converting_final_table_to_anndata(Gene_matrix, merged_guide_matrix_binary, c
         set_guide = set(mu_data_to_vars['guides'].var.index.values).intersection(ann_guide.var.index.values)
     else:
         print (ann_guide.var, 'var guides')
+        dict_get_coord_last_ocurrence_guide = { x.split('|')[0]:x for x in   mu_data_to_vars['guides'].var.index}
+
+        ann_guide.var.index = [dict_get_coord_last_ocurrence_guide[x] for x in ann_guide.var.index]
         set_guide = set(ann_guide.var.index.values)
 
     print ('guide set:', len(set_guide))
@@ -151,11 +154,14 @@ def converting_final_table_to_anndata(Gene_matrix, merged_guide_matrix_binary, c
     #print('==============end=================')
     
     ann_exp.var =      (mu_data_to_vars['scRNA'][: ,   [ x in set_exp for x in       mu_data_to_vars['scRNA'].var.index]]).var.drop_duplicates("feature_name")
-    if not merged:
-        ann_guide.var =     (mu_data_to_vars['guides'][: , [ x in set_guide for x in     mu_data_to_vars['guides'].var.index]]).var.drop_duplicates()
-    else:
-        ann_guide.var =     (ann_guide[: , [ x in set_guide for x in     ann_guide.var.index]]).var.drop_duplicates()
-
+    # if not merged:
+    ann_guide.var =     (mu_data_to_vars['guides'][: , [ x in set_guide for x in     mu_data_to_vars['guides'].var.index]]).var.drop_duplicates()
+    # else:
+    #     this needs to be solved
+    #     I have a file with the guide coords and it needs to be in cluded in the final guide vars
+    #     ann_guide.var =     (ann_guide[: , [ x in set_guide for x in     ann_guide.var.index]]).var.drop_duplicates()
+    #     dict_get_coord_last_ocurrence_guide = { x.split('|')[0]:x for x in   mu_data_to_vars['guides'].var.index}
+    #     ann_guide.var = (mu_data_to_vars['guides'][: , [ x in set_guide for x in     mu_data_to_vars['guides'].var.index]]).var.drop_duplicates()
 
     
     mdata =  mu.MuData({"guides":ann_guide  , "scRNA":   ann_exp })
