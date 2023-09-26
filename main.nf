@@ -127,30 +127,38 @@ workflow {
 
 process downloadGTF {
     input:
-    val gtf_gz_path
+        val gtf_gz_path
     output:
-    path "transcripts.gtf" , emit: gtf
+        path "transcripts.gtf", emit: gtf
     script:
-    """    
-    wget -O - $gtf_gz_path | gunzip -c > transcripts.gtf
-    """
+        if (params.CUSTOM_REFERENCE == false)
+        """    
+        wget -O - $gtf_gz_path | gunzip -c > transcripts.gtf
+        """ 
+        if (params.CUSTOM_REFERENCE == true)
+        """ 
+        cp $params.CUSTOM_GTF_PATH transcripts.gtf
+        """ 
 }
-
-
 
 process downloadReference {
     input:
-    val ref_name 
-    path k_bin 
+        val ref_name 
+        path k_bin 
     
     output:
-    path "transcriptome_index.idx" , emit: transcriptome_idx
-    path "transcriptome_t2g.txt"   , emit: t2t_transcriptome_index
-
+        path "transcriptome_index.idx" , emit: transcriptome_idx
+        path "transcriptome_t2g.txt"   , emit: t2t_transcriptome_index
     script:
-    """
-        kb ref -d $ref_name -i transcriptome_index.idx -g transcriptome_t2g.txt --kallisto ${k_bin}
-    """
+        if (params.CUSTOM_REFERENCE == false)
+            """
+                kb ref -d $ref_name -i transcriptome_index.idx -g transcriptome_t2g.txt --kallisto ${k_bin}
+            """
+        if (params.CUSTOM_REFERENCE == true)
+            """
+                cp $params.CUSTOM_REFERENCE_IDX  transcriptome_index.idx
+                cp $params.CUSTOM_REFERENCE_T2T  transcriptome_t2g.txt
+            """
 }
 
 process downloadGenome {
@@ -467,7 +475,7 @@ process preprocess_bar_multiseq {
             """ 
                 preprocessing_muon_multi.py $MUON_DATA
             """   
-        else
+        if (params.RUN_MULTISEQ == false)
 
             """
                 echo 'skipping preprocessing muon multi'
@@ -508,7 +516,7 @@ process  MultiSeq {
                 multiseq.py $R1_MULTI $R2_MULTI $BARCODES_CELL_LIST_MULTI $BARCODES_MULTIBAR_LIST_MULTI $BAR_MULTI_0 $BAR_MULTI_1 $UMI_MULTI_0 $UMI_MULTI_1 $R2_MULTI_TAG_0 $R2_MULTI_TAG_1 $MUON_DATA
             """ 
         
-        else
+        if (params.RUN_MULTISEQ == false)
             """
             echo 'skiping muon'
             touch final_class.csv
@@ -537,7 +545,7 @@ process select_final_muon{
             cp $SCRA_GUIDE_MULTI muon_selected_final.h5mu
             """
         
-        else
+        if (params.RUN_MULTISEQ == false)
 
             """
             cp $SCRA_GUIDE muon_selected_final.h5mu
