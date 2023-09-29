@@ -16,6 +16,7 @@ import gc
 import argparse
 import seaborn as sns
 from anndata import AnnData, read_h5ad
+import re
 
 
 
@@ -86,8 +87,8 @@ def analyze_batch(scRNA_ann_FILE,
     sc.pp.filter_cells(adata, min_genes=cutoff)
     sc.pp.filter_cells(adata, min_counts=knee[EXPECTED_NUMBER_OF_CELLS])
     adata.var.index = [x.split('.')[0] for x in adata.var.index]  #removing the dot from ensembl in the ann data
-    mito_ensembl_ids = sc.queries.mitochondrial_genes(SPECIE_MITO, attrname="ensembl_gene_id")
-    mito_genes = mito_ensembl_ids["ensembl_gene_id"].values
+    print ('mitochondrial genes starting with MT-')
+    mito_genes = adata.var[adata.var['feature_name'].apply(lambda x: x.startswith('MT-'))].index.values.tolist()
     # for each cell compute fraction of counts in mito genes vs. all genes
     # the `.A1` is only necessary as X is sparse (to transform to a dense array after summing)
     adata.obs['percent_mito'] = np.sum(

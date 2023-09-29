@@ -48,7 +48,11 @@ def ann_transcript_modification():
     gtf = GTFProcessing(GTF_IN)
     df_gtf_refseq = gtf.get_gtf_df()
     df_gtf_refseq_gene =df_gtf_refseq[ df_gtf_refseq['feature'] == 'gene']
-    transcripts_df = pd.read_csv(TRANSCRIPT_FILE, sep='\t', header=None, names =['transcripts', 'genes', 'gene_name'] )
+    transcripts_df = pd.read_csv(TRANSCRIPT_FILE, sep='\t', header=None, names = ['transcripts', 'genes', 'gene_name', 'transcript_name', 'chr', 'start', 'end', 'strand'] )
+    print('updated')
+    print (TRANSCRIPT_FILE)
+    print (transcripts_df.head())
+
     transcripts_df['genes'] = transcripts_df['genes'].apply(lambda x : x.split('.')[0] )
     set_genes_gene_name = dict(zip(transcripts_df['genes'].values, transcripts_df['gene_name'].values))
     set_gene_on_annexp = set([set_genes_gene_name[x] for x in ann_exp.var.index.values])
