@@ -58,6 +58,7 @@ dev.off()
 ## Perform Quantile Sweep
 bar.table.full <- bar.table
 write.csv(bar.table ,   "bar_table.csv" ) 
+bar.table = bar.table[, -c((ncol(bar.table)-1), ncol(dt))]
 bar.table_sweep.list <- list()
 n <- 0
 for (q in seq(0.01, 0.99, by=0.02)) {{
